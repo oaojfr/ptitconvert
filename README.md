@@ -2,7 +2,7 @@
 
 ![Python](https://img.shields.io/badge/python-v3.8+-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-windows%20%7C%20linux-lightgrey.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
+![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)
 
 Un convertisseur de fichiers polyvalent avec interface graphique intuitive, compatible Windows et Linux.
 
@@ -126,7 +126,7 @@ Le projet suit une architecture **MVC (Model-View-Controller)** :
 
 ## 📝 Licence
 
-Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
+Ce projet est sous licence Apache 2.0. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
 
 ## 🐛 Rapporter des bugs
 
