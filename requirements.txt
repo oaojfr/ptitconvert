@@ -1,24 +1,28 @@
-Pillow>=9.0.0
-PyPDF2>=3.0.0
-python-docx>=1.0.0
-openpyxl>=3.1.0
-reportlab>=4.0.0
-img2pdf>=0.4.0
-pandas>=1.3.0
+# PtitConvert - Dépendances Python
+# Convertisseur de fichiers avancé avec interface graphique
 
-# Nouveaux formats
-ebooklib>=0.18
-odfpy>=1.4.0
-rarfile>=4.0
-zipfile36>=0.1.0
+# === CORE LIBRARIES ===
+Pillow>=9.0.0          # Manipulation d'images (PNG, JPG, etc.)
+PyPDF2>=3.0.0          # Traitement et manipulation des PDF
+python-docx>=1.0.0     # Documents Microsoft Word (.docx)
+openpyxl>=3.1.0        # Feuilles de calcul Excel (.xlsx)
+reportlab>=4.0.0       # Génération de PDF
+img2pdf>=0.4.0         # Conversion d'images vers PDF
+pandas>=1.3.0          # Manipulation de données et CSV
 
-# Audio/Video
-moviepy>=1.0.3
-pydub>=0.25.1
+# === FORMATS AVANCÉS ===
+ebooklib>=0.18         # Support des eBooks (EPUB)
+odfpy>=1.4.0          # Documents OpenDocument (ODT, ODS)
+rarfile>=4.0          # Extraction d'archives RAR
+py7zr>=0.20.0         # Support des archives 7Z
 
-# CLI
-click>=8.0.0
-colorama>=0.4.0
+# === AUDIO/VIDEO ===
+moviepy>=1.0.3        # Conversion vidéo (MP4, AVI, etc.)
+pydub>=0.25.1         # Manipulation audio (MP3, WAV, FLAC)
 
-# Interface améliorée
-ttkthemes>=3.2.0
+# === INTERFACE CLI ===
+click>=8.0.0          # Framework CLI moderne
+colorama>=0.4.0       # Couleurs dans le terminal
+
+# === INTERFACE GRAPHIQUE ===
+# tkinter est inclus avec Python par défaut

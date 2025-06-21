@@ -133,6 +133,31 @@ backups/
 converted_files/
 *.converted.*
 
+# Application specific PtitConvert
+temp/
+tmp/
+output/
+converted/
+Convertis/
+
+# Configuration et données utilisateur
+config.json
+*.db
+*.sqlite
+*.sqlite3
+history.db
+
+# Large media files for testing
+*.mp4
+*.avi
+*.mkv
+*.mov
+*.mp3
+*.wav
+*.flac
+test_files/
+sample_files/
+
 # GitHub workflows and config
 .github/
 
