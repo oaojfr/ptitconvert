@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, nativeImage } = require('electron');
 const path = require('path');
 const { spawn } = require('child_process');
 const isDev = process.env.ELECTRON_START_URL || !app.isPackaged;
@@ -56,12 +56,23 @@ function stopBackend() {
 }
 
 function createWindow() {
+  // Resolve an app icon for the window (Linux/Windows). On macOS the bundle icon is used.
+  let windowIcon = undefined;
+  try {
+    // Prefer 512x512 PNG generated from SVG
+    const iconPng = path.join(__dirname, 'assets', 'icon.png');
+    if (require('fs').existsSync(iconPng)) {
+      windowIcon = nativeImage.createFromPath(iconPng);
+    }
+  } catch (_) {}
+
   const win = new BrowserWindow({
     width: 1100,
     height: 720,
     minWidth: 900,
     minHeight: 600,
     title: 'PtitConvert',
+    icon: process.platform === 'darwin' ? undefined : windowIcon, // macOS ignores this
     webPreferences: {
       preload: path.join(__dirname, 'preload.js')
     }
@@ -72,6 +83,17 @@ function createWindow() {
 
 app.whenReady().then(() => {
   startBackend();
+
+  // In dev on macOS, set the dock icon explicitly from PNG so it matches the bundle icon.
+  try {
+    if (process.platform === 'darwin' && isDev) {
+      const dockPng = path.join(__dirname, 'assets', 'icon.png');
+      if (require('fs').existsSync(dockPng)) {
+        app.dock.setIcon(nativeImage.createFromPath(dockPng));
+      }
+    }
+  } catch (_) {}
+
   createWindow();
 
   app.on('activate', function () {

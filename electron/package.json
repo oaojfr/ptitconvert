@@ -5,7 +5,7 @@
   "description": "Desktop UI for PtitConvert (Electron front-end)",
   "main": "main.js",
   "scripts": {
-  "start": "electron .",
+  "start": "npm run icons && electron .",
   "build:backend": "cd .. && .venv/bin/python scripts/build_backend.py",
   "icons": "node scripts/generate-icons.js",
   "build": "npm run build:backend && npm run icons && electron-builder -mwl --publish=never",
