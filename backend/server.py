@@ -222,8 +222,8 @@ def history_recent(limit: int = Query(100, ge=1, le=1000)):
 @app.post("/open_folder")
 def open_folder(req: OpenFolderRequest):
     try:
-    path = req.path
-    if not os.path.isdir(path):
+        path = req.path
+        if not os.path.isdir(path):
             raise HTTPException(status_code=400, detail="Chemin invalide")
         if platform.system() == "Windows":
             os.startfile(path)  # type: ignore[attr-defined]
