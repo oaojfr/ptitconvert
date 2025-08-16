@@ -1,4 +1,4 @@
-name: Building P'Tit Convert <3
+name: New commit, new build !
 
 on:
   workflow_dispatch:
@@ -19,8 +19,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-macos:
-    runs-on: macos-latest
+  build-macos-arm64:
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -39,14 +39,44 @@ jobs:
         run: |
           cd electron
           npm install --no-audit --no-fund
-      - name: Build mac app
+      - name: Build mac app (arm64)
         run: |
           cd electron
-          npm run build:mac
+          npm run build:mac:arm64
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: mac-dist
+          name: mac-dist-arm64
+          path: electron/dist/**
+
+  build-macos-x64:
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Python deps
+        run: |
+          python -m pip install -U pip
+          python -m pip install -r requirements.txt pyinstaller
+      - name: Build backend binary
+        run: python scripts/build_backend.py
+      - name: Install Electron deps
+        run: |
+          cd electron
+          npm install --no-audit --no-fund
+      - name: Build mac app (x64)
+        run: |
+          cd electron
+          npm run build:mac:x64
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-dist-x64
           path: electron/dist/**
 
   build-windows:
@@ -111,7 +141,7 @@ jobs:
 
   release:
     if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main')
-    needs: [build-macos, build-windows, build-linux]
+    needs: [build-macos-arm64, build-macos-x64, build-windows, build-linux]
     runs-on: ubuntu-latest
     steps:
       - name: Prepare release metadata
@@ -128,11 +158,16 @@ jobs:
           echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
           echo "release_name=$RELEASE_NAME" >> $GITHUB_OUTPUT
           echo "ref=${GITHUB_SHA}" >> $GITHUB_OUTPUT
-      - name: Download mac artifacts
+      - name: Download mac arm64 artifacts
         uses: actions/download-artifact@v4
         with:
-          name: mac-dist
-          path: mac-dist
+          name: mac-dist-arm64
+          path: mac-dist-arm64
+      - name: Download mac x64 artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: mac-dist-x64
+          path: mac-dist-x64
       - name: Download win artifacts
         uses: actions/download-artifact@v4
         with:
@@ -147,14 +182,17 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          MAC_INST=$(ls mac-dist/*.dmg 2>/dev/null | head -n1 || true)
+          MAC_ARM64_INST=$(ls mac-dist-arm64/*.dmg 2>/dev/null | head -n1 || true)
+          MAC_X64_INST=$(ls mac-dist-x64/*.dmg 2>/dev/null | head -n1 || true)
           WIN_INST=$(ls win-dist/*.exe 2>/dev/null | head -n1 || true)
           LINUX_INST=$(ls linux-dist/*.AppImage 2>/dev/null | head -n1 || true)
-          echo "Mac:   $MAC_INST" || true
+          echo "Mac arm64: $MAC_ARM64_INST" || true
+          echo "Mac x64:   $MAC_X64_INST" || true
           echo "Win:   $WIN_INST" || true
           echo "Linux: $LINUX_INST" || true
           : > checksums.txt
-          if [[ -n "$MAC_INST" ]]; then shasum -a 256 "$MAC_INST" >> checksums.txt; fi
+          if [[ -n "$MAC_ARM64_INST" ]]; then shasum -a 256 "$MAC_ARM64_INST" >> checksums.txt; fi
+          if [[ -n "$MAC_X64_INST" ]]; then shasum -a 256 "$MAC_X64_INST" >> checksums.txt; fi
           if [[ -n "$WIN_INST" ]]; then shasum -a 256 "$WIN_INST" >> checksums.txt; fi
           if [[ -n "$LINUX_INST" ]]; then shasum -a 256 "$LINUX_INST" >> checksums.txt; fi
       - name: Create GitHub Release and upload assets
@@ -166,7 +204,8 @@ jobs:
           prerelease: ${{ !startsWith(github.ref, 'refs/tags/') }}
           generate_release_notes: true
           files: |
-            mac-dist/*.dmg
+            mac-dist-arm64/*.dmg
+            mac-dist-x64/*.dmg
             win-dist/*.exe
             linux-dist/*.AppImage
             checksums.txt
