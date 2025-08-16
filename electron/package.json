@@ -15,6 +15,7 @@
   "build": {
     "appId": "com.ptitconvert.app",
     "productName": "PtitConvert",
+  "publish": "never",
     "asar": true,
     "compression": "maximum",
     "npmRebuild": false,
@@ -39,7 +40,7 @@
         ]
       }
     ],
-    "mac": {
+  "mac": {
       "target": [
         {
           "target": "dmg",
@@ -47,7 +48,6 @@
         }
       ],
       "artifactName": "PtitConvert-${version}-mac.dmg",
-      "publish": [null],
       "category": "public.app-category.utilities"
     },
     "win": {
@@ -57,8 +57,8 @@
           "arch": ["x64"]
         }
       ],
-      "artifactName": "PtitConvert-${version}-win.exe",
-      "publish": [null]
+  "artifactName": "PtitConvert-${version}-win.exe"
+      
     },
     "linux": {
       "target": [
@@ -68,7 +68,6 @@
         }
       ],
       "artifactName": "PtitConvert-${version}-linux.AppImage",
-      "publish": [null],
       "category": "Utility"
     }
   },
