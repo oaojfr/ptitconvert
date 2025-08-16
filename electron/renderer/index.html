@@ -15,6 +15,9 @@
           <p>Convertisseur de fichiers rapide et élégant</p>
         </div>
       </div>
+      <div class="header-actions">
+        <button id="btnPrefs" class="btn small">Préférences</button>
+      </div>
     </header>
 
     <main class="container">
@@ -36,12 +39,18 @@
           </div>
           <div>
             <label for="output">Dossier de sortie</label>
-            <input id="output" type="text" placeholder="/chemin/vers/sortie" />
+            <div class="input-row">
+              <input id="output" type="text" placeholder="/chemin/vers/sortie" />
+              <button id="btnBrowseOutput" class="btn">Parcourir</button>
+            </div>
           </div>
         </div>
         <div class="row between">
           <div id="status" class="muted"></div>
-          <button id="btnConvert" class="btn primary" disabled>Convertir</button>
+          <div class="row gap">
+            <button id="btnOpenOutput" class="btn" disabled>Ouvrir le dossier</button>
+            <button id="btnConvert" class="btn primary" disabled>Convertir</button>
+          </div>
         </div>
         <div class="progress"><div id="progressBar"></div></div>
       </section>
@@ -53,8 +62,32 @@
     </main>
 
     <footer class="footer">
-      <span>💡 Astuce: glissez-déposez des fichiers directement ici (à venir)</span>
+      <span>💡 Astuce: glissez-déposez des fichiers directement dans la fenêtre</span>
     </footer>
+
+    <!-- Modal Préférences -->
+    <div id="prefsModal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-content">
+        <h3>Préférences</h3>
+        <div class="grid">
+          <div>
+            <label for="prefDefaultFormat">Format par défaut</label>
+            <input id="prefDefaultFormat" type="text" placeholder="ex: pdf, jpg, mp3" />
+          </div>
+          <div>
+            <label for="prefDefaultOutput">Dossier de sortie par défaut</label>
+            <div class="input-row">
+              <input id="prefDefaultOutput" type="text" placeholder="/chemin/vers/sortie" />
+              <button id="btnPickDefaultOutput" class="btn">Parcourir</button>
+            </div>
+          </div>
+        </div>
+        <div class="row gap end">
+          <button id="btnClosePrefs" class="btn">Annuler</button>
+          <button id="btnSavePrefs" class="btn primary">Enregistrer</button>
+        </div>
+      </div>
+    </div>
 
     <script src="renderer.js"></script>
   </body>

@@ -5,8 +5,9 @@
   "description": "Desktop UI for PtitConvert (Electron front-end)",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
-    "build": "electron-builder -mwl",
+  "start": "electron .",
+  "build:backend": "cd .. && .venv/bin/python scripts/build_backend.py",
+  "build": "npm run build:backend && electron-builder -mwl",
     "build:mac": "electron-builder --mac",
     "build:win": "electron-builder --win",
     "build:linux": "electron-builder --linux"

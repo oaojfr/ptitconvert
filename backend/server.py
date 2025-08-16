@@ -64,6 +64,9 @@ class JobStatus(BaseModel):
     current_file: Optional[str] = None
     message: Optional[str] = None
     done: bool = False
+class OpenFolderRequest(BaseModel):
+    path: str
+
 
 
 # Simple in-memory job registry
@@ -217,9 +220,10 @@ def history_recent(limit: int = Query(100, ge=1, le=1000)):
 
 
 @app.post("/open_folder")
-def open_folder(path: str):
+def open_folder(req: OpenFolderRequest):
     try:
-        if not os.path.isdir(path):
+    path = req.path
+    if not os.path.isdir(path):
             raise HTTPException(status_code=400, detail="Chemin invalide")
         if platform.system() == "Windows":
             os.startfile(path)  # type: ignore[attr-defined]
