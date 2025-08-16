@@ -24,10 +24,11 @@ async function generatePngs() {
 }
 
 async function generateIco() {
-  const toIco = (await import('to-ico')).default;
-  const pngs = [16, 24, 32, 48, 64, 128, 256].map((s) => fs.readFileSync(path.join(outDir, `icon-${s}.png`)));
-  const buf = await toIco(pngs);
-  await fs.promises.writeFile(path.join(outDir, 'icon.ico'), buf);
+  const png2icons = require('png2icons');
+  const base = fs.readFileSync(path.join(outDir, 'icon-256.png'));
+  const icoBuf = png2icons.createICO(base, png2icons.BICUBIC, /*icoCompression=*/0, /*sizes=*/[16,24,32,48,64,128,256]);
+  if (!icoBuf) throw new Error('Failed to generate ICO');
+  await fs.promises.writeFile(path.join(outDir, 'icon.ico'), icoBuf);
 }
 
 async function generateIcns() {
