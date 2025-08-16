@@ -31,12 +31,12 @@ async function generateIco() {
 }
 
 async function generateIcns() {
-  // Build minimal ICNS from 256/512/1024 PNGs
-  const icns = require('icns-builder');
-  const sources = [256, 512, 1024]
-    .map((s) => ({ size: s, filePath: path.join(outDir, `icon-${s}.png`) }));
-  const buf = await icns(sources);
-  await fs.promises.writeFile(path.join(outDir, 'icon.icns'), buf);
+  const png2icons = require('png2icons');
+  // Use the 1024 base PNG for best quality
+  const base = fs.readFileSync(path.join(outDir, 'icon-1024.png'));
+  const icnsBuf = png2icons.createICNS(base, png2icons.BICUBIC, /*icnsCompression=*/0);
+  if (!icnsBuf) throw new Error('Failed to generate ICNS');
+  await fs.promises.writeFile(path.join(outDir, 'icon.icns'), icnsBuf);
 }
 
 async function main() {
