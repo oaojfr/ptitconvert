@@ -7,15 +7,14 @@
   "scripts": {
   "start": "electron .",
   "build:backend": "cd .. && .venv/bin/python scripts/build_backend.py",
-  "build": "npm run build:backend && electron-builder -mwl",
-    "build:mac": "electron-builder --mac",
-    "build:win": "electron-builder --win",
-    "build:linux": "electron-builder --linux"
+  "build": "npm run build:backend && electron-builder -mwl --publish=never",
+    "build:mac": "electron-builder --mac --publish=never",
+    "build:win": "electron-builder --win --publish=never",
+    "build:linux": "electron-builder --linux --publish=never"
   },
   "build": {
     "appId": "com.ptitconvert.app",
     "productName": "PtitConvert",
-  "publish": "never",
     "asar": true,
     "compression": "maximum",
     "npmRebuild": false,
@@ -44,7 +43,7 @@
       "target": [
         {
           "target": "dmg",
-          "arch": ["x64"]
+          "arch": ["arm64"]
         }
       ],
       "artifactName": "PtitConvert-${version}-mac.dmg",
