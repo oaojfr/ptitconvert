@@ -53,6 +53,19 @@ function refreshFiles() {
   el('#btnOpenOutput').disabled = !el('#output').value;
 }
 
+async function checkBackend(timeoutMs = 4000) {
+  const ctl = new AbortController();
+  const t = setTimeout(() => ctl.abort(), timeoutMs);
+  try {
+    const r = await fetch(`${API}/health`, { signal: ctl.signal });
+    clearTimeout(t);
+    return r.ok;
+  } catch {
+    clearTimeout(t);
+    return false;
+  }
+}
+
 async function suggestFormats() {
   const formatSel = el('#format');
   const current = formatSel.value;
@@ -106,24 +119,55 @@ async function startConvert() {
   if (!files.length || !outputDir || !outputFmt) return;
 
   el('#status').textContent = 'Démarrage...';
-  const resp = await fetch(`${API}/convert`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ files, output_format: outputFmt, output_dir: outputDir })
-  });
-  const { job_id } = await resp.json();
+  el('#progressBar').style.width = '0%';
 
+  // Quick connectivity check
+  if (!(await checkBackend())) {
+    el('#status').textContent = "Impossible de joindre le service de conversion (backend).";
+    return;
+  }
+
+  let job_id = null;
+  try {
+    const resp = await fetch(`${API}/convert`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ files, output_format: outputFmt, output_dir: outputDir })
+    });
+    if (!resp.ok) {
+      const txt = await resp.text();
+      throw new Error(txt || `Erreur HTTP ${resp.status}`);
+    }
+    const data = await resp.json();
+    job_id = data.job_id;
+  } catch (e) {
+    console.error('convert error', e);
+    el('#status').textContent = `Erreur de démarrage: ${e?.message || e}`;
+    return;
+  }
+
+  let failures = 0;
   const timer = setInterval(async () => {
-    const r = await fetch(`${API}/jobs/${job_id}`);
-    const j = await r.json();
-    el('#status').textContent = j.message || '';
-    const pct = j.total ? Math.round((j.processed / j.total) * 100) : 0;
-    el('#progressBar').style.width = `${pct}%`;
-    if (j.done) {
-      clearInterval(timer);
-      el('#status').textContent = `Terminé: ${j.success} réussite(s), ${j.failed} échec(s)`;
-      lastOutputDir = outputDir;
-      loadHistory();
+    try {
+      const r = await fetch(`${API}/jobs/${job_id}`);
+      if (!r.ok) throw new Error(`status ${r.status}`);
+      const j = await r.json();
+      el('#status').textContent = j.message || 'En cours...';
+      const pct = j.total ? Math.round((j.processed / j.total) * 100) : 0;
+      el('#progressBar').style.width = `${pct}%`;
+      if (j.done) {
+        clearInterval(timer);
+        el('#status').textContent = `Terminé: ${j.success} réussite(s), ${j.failed} échec(s)`;
+        lastOutputDir = outputDir;
+        loadHistory();
+      }
+      failures = 0;
+    } catch (e) {
+      failures += 1;
+      if (failures >= 8) { // ~4s
+        clearInterval(timer);
+        el('#status').textContent = `Perte de connexion au service (jobs).`;
+      }
     }
   }, 500);
 }
