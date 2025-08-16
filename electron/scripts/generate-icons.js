@@ -21,6 +21,23 @@ async function generatePngs() {
       await sharp(svgPath).resize(size, size).png({ compressionLevel: 9 }).toFile(out);
     })
   );
+
+  // Extra Linux-friendly filenames expected by electron-builder when icon is a directory
+  // Reference: electron-builder looks for 256x256.png, 512x512.png or icon.png (512x512)
+  const png256 = path.join(outDir, 'icon-256.png');
+  const png512 = path.join(outDir, 'icon-512.png');
+  const named256 = path.join(outDir, '256x256.png');
+  const named512 = path.join(outDir, '512x512.png');
+  const iconPng = path.join(outDir, 'icon.png'); // 512x512
+  try {
+    if (fs.existsSync(png256)) await fs.promises.copyFile(png256, named256);
+    if (fs.existsSync(png512)) {
+      await fs.promises.copyFile(png512, named512);
+      await fs.promises.copyFile(png512, iconPng);
+    }
+  } catch (e) {
+    console.warn('Warning while creating Linux icon aliases:', e);
+  }
 }
 
 async function generateIco() {
