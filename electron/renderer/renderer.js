@@ -4,6 +4,41 @@ const el = (q) => document.querySelector(q);
 const files = [];
 let lastOutputDir = '';
 
+// Fallback formats if backend suggestion is unavailable
+const DEFAULT_FORMATS = ['pdf','jpg','png','txt','csv','mp3','mp4','zip'];
+
+function parseFormatsResponse(data) {
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data.formats)) return data.formats;
+  if (typeof data === 'object') {
+    const vals = Object.values(data).flatMap(v => Array.isArray(v) ? v : []);
+    if (vals.length) return vals;
+  }
+  return [];
+}
+
+function setFormats(list, preferred) {
+  const formatSel = el('#format');
+  formatSel.innerHTML = '';
+  const placeholder = document.createElement('option');
+  placeholder.value = '';
+  placeholder.textContent = '— Sélectionnez un format —';
+  placeholder.disabled = true;
+  placeholder.selected = true;
+  formatSel.appendChild(placeholder);
+
+  const uniq = [...new Set((list || []).map(f => String(f).toLowerCase()))];
+  uniq.forEach(f => {
+    const opt = document.createElement('option');
+    opt.value = f;
+    opt.textContent = f.toUpperCase();
+    formatSel.appendChild(opt);
+  });
+
+  if (preferred && uniq.includes(preferred)) formatSel.value = preferred;
+}
+
 function refreshFiles() {
   const list = el('#filesList');
   list.innerHTML = '';
@@ -20,20 +55,33 @@ function refreshFiles() {
 
 async function suggestFormats() {
   const formatSel = el('#format');
-  formatSel.innerHTML = '';
-  if (files.length === 0) return;
+  const current = formatSel.value;
+  if (files.length === 0) {
+    // If no files yet, keep initial/global formats
+    if (!formatSel.options.length) setFormats(DEFAULT_FORMATS);
+    return;
+  }
   const ext = files[0].split('.').pop();
   try {
     const r = await fetch(`${API}/formats?file_ext=${encodeURIComponent(ext)}`);
     const data = await r.json();
-    data.formats.forEach(f => {
-      const opt = document.createElement('option');
-      opt.value = f.toLowerCase();
-      opt.textContent = f;
-      formatSel.appendChild(opt);
-    });
+    const list = parseFormatsResponse(data);
+    setFormats(list.length ? list : DEFAULT_FORMATS, current);
   } catch (e) {
     console.error(e);
+    setFormats(DEFAULT_FORMATS, current);
+  }
+}
+
+async function loadInitialFormats(preferred) {
+  try {
+    const r = await fetch(`${API}/formats`);
+    const data = await r.json();
+    const list = parseFormatsResponse(data);
+    setFormats(list.length ? list : DEFAULT_FORMATS, preferred);
+  } catch (e) {
+    console.error(e);
+    setFormats(DEFAULT_FORMATS, preferred);
   }
 }
 
@@ -82,7 +130,8 @@ async function startConvert() {
 
 window.addEventListener('DOMContentLoaded', () => {
   // Load prefs
-  try {
+  (async () => {
+    try {
     const prefs = JSON.parse(localStorage.getItem('ptitconvert:prefs') || '{}');
     if (prefs.defaultFormat) el('#prefDefaultFormat')?.setAttribute('value', prefs.defaultFormat);
     if (prefs.defaultOutput) {
@@ -90,7 +139,10 @@ window.addEventListener('DOMContentLoaded', () => {
       if (out) out.setAttribute('value', prefs.defaultOutput);
       el('#output').value = prefs.defaultOutput;
     }
-  } catch {}
+      // Preload formats (all) so the dropdown isn't empty before adding files
+      await loadInitialFormats(prefs.defaultFormat?.toLowerCase());
+    } catch {}
+  })();
 
   el('#btnAddFiles').addEventListener('click', async () => {
     const picked = await window.ptitconvert.pickFiles();
@@ -146,10 +198,10 @@ window.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('ptitconvert:prefs', JSON.stringify(prefs));
     if (prefs.defaultOutput) el('#output').value = prefs.defaultOutput;
     if (prefs.defaultFormat) {
-      // Select if exists
       const sel = el('#format');
-      const opt = Array.from(sel.options).find(o => o.value === prefs.defaultFormat);
-      if (opt) sel.value = prefs.defaultFormat;
+      if (Array.from(sel.options).some(o => o.value === prefs.defaultFormat)) {
+        sel.value = prefs.defaultFormat;
+      }
     }
     refreshFiles();
     prefsModal.classList.add('hidden');
