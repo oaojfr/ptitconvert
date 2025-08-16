@@ -15,8 +15,20 @@
   "build": {
     "appId": "com.ptitconvert.app",
     "productName": "PtitConvert",
+    "asar": true,
+    "compression": "maximum",
+    "npmRebuild": false,
+    "electronLanguages": ["en-US", "fr"],
     "files": [
-      "**/*"
+      "**/*",
+      "!**/*.map",
+      "!**/*.ts",
+      "!**/*.spec.*",
+      "!**/__tests__/**",
+      "!**/test{,s}/**",
+      "!**/screenshots/**",
+      "!**/*.md",
+      "!**/docs/**"
     ],
     "extraResources": [
       {
@@ -29,19 +41,34 @@
     ],
     "mac": {
       "target": [
-        "dmg"
+        {
+          "target": "dmg",
+          "arch": ["x64"]
+        }
       ],
+      "artifactName": "PtitConvert-${version}-mac.dmg",
+      "publish": [null],
       "category": "public.app-category.utilities"
     },
     "win": {
       "target": [
-        "nsis"
-      ]
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "artifactName": "PtitConvert-${version}-win.exe",
+      "publish": [null]
     },
     "linux": {
       "target": [
-        "AppImage"
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        }
       ],
+      "artifactName": "PtitConvert-${version}-linux.AppImage",
+      "publish": [null],
       "category": "Utility"
     }
   },
