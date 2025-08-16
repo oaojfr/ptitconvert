@@ -1,4 +1,4 @@
-name: New commit, new build !
+name: New commit, newer build !
 
 on:
   workflow_dispatch:
