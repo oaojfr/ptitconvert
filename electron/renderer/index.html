@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PtitConvert</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo">🔄</div>
+        <div class="titles">
+          <h1>PtitConvert</h1>
+          <p>Convertisseur de fichiers rapide et élégant</p>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="card">
+        <h2>Fichiers à convertir</h2>
+        <div class="row gap">
+          <button id="btnAddFiles" class="btn">Ajouter des fichiers</button>
+          <button id="btnAddFolder" class="btn">Choisir dossier de sortie</button>
+        </div>
+        <div class="files" id="filesList"></div>
+      </section>
+
+      <section class="card">
+        <h2>Options</h2>
+        <div class="grid">
+          <div>
+            <label for="format">Format de sortie</label>
+            <select id="format"></select>
+          </div>
+          <div>
+            <label for="output">Dossier de sortie</label>
+            <input id="output" type="text" placeholder="/chemin/vers/sortie" />
+          </div>
+        </div>
+        <div class="row between">
+          <div id="status" class="muted"></div>
+          <button id="btnConvert" class="btn primary" disabled>Convertir</button>
+        </div>
+        <div class="progress"><div id="progressBar"></div></div>
+      </section>
+
+      <section class="card">
+        <h2>Historique récent</h2>
+        <div id="history" class="history"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>💡 Astuce: glissez-déposez des fichiers directement ici (à venir)</span>
+    </footer>
+
+    <script src="renderer.js"></script>
+  </body>
+</html>

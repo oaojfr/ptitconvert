@@ -26,3 +26,7 @@ colorama>=0.4.0       # Couleurs dans le terminal
 
 # === INTERFACE GRAPHIQUE ===
 # tkinter est inclus avec Python par défaut
+
+# === BACKEND API (Electron front-end) ===
+fastapi>=0.110.0
+uvicorn[standard]>=0.27.0

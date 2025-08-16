@@ -11,6 +11,42 @@
 			"group": "build",
 			"isBackground": false,
 			"problemMatcher": []
+		},
+		{
+			"label": "Run PtitConvert API",
+			"type": "shell",
+			"command": "${workspaceFolder}/.venv/bin/python",
+			"args": ["-m", "backend.server"],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Run PtitConvert API",
+			"type": "shell",
+			"command": "python3",
+			"args": [
+				"-m",
+				"backend.server"
+			],
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build"
+		}
+		,
+		{
+			"label": "Start Electron UI",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"start"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}/electron"
+			},
+			"isBackground": false,
+			"group": "build",
+			"problemMatcher": []
 		}
 	]
 }

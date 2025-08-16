@@ -1,0 +1,51 @@
+{
+  "name": "ptitconvert-electron",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Desktop UI for PtitConvert (Electron front-end)",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder -mwl",
+    "build:mac": "electron-builder --mac",
+    "build:win": "electron-builder --win",
+    "build:linux": "electron-builder --linux"
+  },
+  "build": {
+    "appId": "com.ptitconvert.app",
+    "productName": "PtitConvert",
+    "files": [
+      "**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "../bin",
+        "to": "backend",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.utilities"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Utility"
+    }
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^24.13.3"
+  }
+}

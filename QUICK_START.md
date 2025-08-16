@@ -2,25 +2,22 @@
 
 ## Installation Express
 
-### Linux/macOS
+### Linux/macOS/Windows
 ```bash
 git clone https://github.com/votre-username/ptitconvert.git
 cd ptitconvert
-chmod +x start.sh
-./start.sh
-```
-
-### Windows
-```cmd
-git clone https://github.com/votre-username/ptitconvert.git
-cd ptitconvert
-start.bat
+python3 -m venv .venv && source .venv/bin/activate || python -m venv .venv && .venv\\Scripts\\activate
+python -m pip install -U pip
+python -m pip install -r requirements.txt
+cd electron
+npm install
+npm start
 ```
 
 ## Première Utilisation
 
 ### 1. Lancer l'application
-- **Interface graphique** : Double-clic sur `start.sh` (Linux) ou `start.bat` (Windows)
+- **Interface graphique (Electron)** : `cd electron && npm start`
 - **Ligne de commande** : `python ptitconvert_cli.py --help`
 
 ### 2. Convertir vos premiers fichiers

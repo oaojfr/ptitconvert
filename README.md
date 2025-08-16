@@ -44,21 +44,20 @@ Un convertisseur de fichiers polyvalent et moderne avec interface graphique intu
 - Python 3.8 ou supérieur
 - pip (gestionnaire de paquets Python)
 
-### Installation automatique
+### Installation via Electron (recommandée)
 
-**Linux :**
 ```bash
 git clone https://github.com/votre-username/ptitconvert.git
 cd ptitconvert
-chmod +x start.sh
-./start.sh
-```
+# Installez les dépendances Python du backend
+python3 -m venv .venv && source .venv/bin/activate || python -m venv .venv && .venv\\Scripts\\activate
+python -m pip install -U pip
+python -m pip install -r requirements.txt
 
-**Windows :**
-```cmd
-git clone https://github.com/votre-username/ptitconvert.git
-cd ptitconvert
-start.bat
+# Lancez l'UI Electron (le backend démarre automatiquement)
+cd electron
+npm install
+npm start
 ```
 
 ### Installation manuelle
@@ -74,18 +73,28 @@ cd ptitconvert
 pip install -r requirements.txt
 ```
 
-3. Lancez l'application :
+3. Lancez l'application (Tkinter, optionnel) :
 ```bash
 python main.py
 ```
+
+### Option: UI moderne (Electron)
+
+- Backend Python (API FastAPI) sera lancé automatiquement par Electron. Pour installer et démarrer l'UI:
+```bash
+cd electron
+npm install
+npm start
+```
+L'UI se connecte à http://127.0.0.1:8787.
 
 ## 🎯 Utilisation
 
 ### Interface Graphique
 
-1. **Lancer l'application** :
+1. **Lancer l'application (Electron)** :
    ```bash
-   python main.py
+   cd electron && npm start
    ```
    
 2. **Utiliser le menu** :
