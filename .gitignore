@@ -177,11 +177,3 @@ Thumbs.db
 # Electron / Node
 electron/node_modules/
 electron/dist/
-electron/package-lock.json
-electron/yarn.lock
-
-# Node/Electron
-electron/node_modules/
-electron/package-lock.json
-electron/yarn.lock
-electron/pnpm-lock.yaml

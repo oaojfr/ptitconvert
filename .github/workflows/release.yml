@@ -38,7 +38,7 @@ jobs:
       - name: Install Electron deps
         run: |
           cd electron
-          npm ci
+          npm install --no-audit --no-fund
       - name: Build mac app
         run: |
           cd electron
@@ -68,7 +68,7 @@ jobs:
       - name: Install Electron deps
         run: |
           cd electron
-          npm ci
+          npm install --no-audit --no-fund
       - name: Build Windows app
         run: |
           cd electron
@@ -98,7 +98,7 @@ jobs:
       - name: Install Electron deps
         run: |
           cd electron
-          npm ci
+          npm install --no-audit --no-fund
       - name: Build Linux app
         run: |
           cd electron
