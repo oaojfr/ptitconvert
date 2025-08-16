@@ -1,0 +1,156 @@
+name: Build Apps
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - '**'
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Python deps
+        run: |
+          python -m pip install -U pip
+          python -m pip install -r requirements.txt pyinstaller
+      - name: Build backend binary
+        run: python scripts/build_backend.py
+      - name: Install Electron deps
+        run: |
+          cd electron
+          npm ci
+      - name: Build mac app
+        run: |
+          cd electron
+          npm run build:mac
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-dist
+          path: electron/dist/**
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Python deps
+        run: |
+          python -m pip install -U pip
+          python -m pip install -r requirements.txt pyinstaller
+      - name: Build backend binary
+        run: python scripts/build_backend.py
+      - name: Install Electron deps
+        run: |
+          cd electron
+          npm ci
+      - name: Build Windows app
+        run: |
+          cd electron
+          npm run build:win
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: win-dist
+          path: electron/dist/**
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Python deps
+        run: |
+          python -m pip install -U pip
+          python -m pip install -r requirements.txt pyinstaller
+      - name: Build backend binary
+        run: python scripts/build_backend.py
+      - name: Install Electron deps
+        run: |
+          cd electron
+          npm ci
+      - name: Build Linux app
+        run: |
+          cd electron
+          npm run build:linux
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-dist
+          path: electron/dist/**
+
+  release:
+    if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main')
+    needs: [build-macos, build-windows, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare release metadata
+        id: meta
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            TAG_NAME="${GITHUB_REF##*/}"
+            RELEASE_NAME="$TAG_NAME"
+          else
+            TAG_NAME="main-${GITHUB_RUN_NUMBER}"
+            RELEASE_NAME="main build #${GITHUB_RUN_NUMBER}"
+          fi
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "release_name=$RELEASE_NAME" >> $GITHUB_OUTPUT
+          echo "ref=${GITHUB_SHA}" >> $GITHUB_OUTPUT
+      - name: Download mac artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: mac-dist
+          path: mac-dist
+      - name: Download win artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: win-dist
+          path: win-dist
+      - name: Download linux artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-dist
+          path: linux-dist
+    - name: Create GitHub Release and upload assets
+        uses: softprops/action-gh-release@v2
+        with:
+      tag_name: ${{ steps.meta.outputs.tag_name }}
+      name: ${{ steps.meta.outputs.release_name }}
+      target_commitish: ${{ steps.meta.outputs.ref }}
+      prerelease: ${{ !startsWith(github.ref, 'refs/tags/') }}
+          files: |
+            mac-dist/**
+            win-dist/**
+            linux-dist/**

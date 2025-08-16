@@ -158,9 +158,6 @@ history.db
 test_files/
 sample_files/
 
-# GitHub workflows and config
-.github/
-
 # OS generated files
 .DS_Store
 .DS_Store?
