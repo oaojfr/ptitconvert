@@ -66,6 +66,19 @@ async function checkBackend(timeoutMs = 4000) {
   }
 }
 
+function delay(ms) {
+  return new Promise(res => setTimeout(res, ms));
+}
+
+async function waitBackendReady(maxWaitMs = 8000, stepMs = 400) {
+  const start = Date.now();
+  while (Date.now() - start < maxWaitMs) {
+    if (await checkBackend(Math.min(stepMs, 1000))) return true;
+    await delay(stepMs);
+  }
+  return false;
+}
+
 async function suggestFormats() {
   const formatSel = el('#format');
   const current = formatSel.value;
@@ -121,8 +134,8 @@ async function startConvert() {
   el('#status').textContent = 'Démarrage...';
   el('#progressBar').style.width = '0%';
 
-  // Quick connectivity check
-  if (!(await checkBackend())) {
+  // Wait for backend to be ready (gives it time to spawn)
+  if (!(await waitBackendReady())) {
     el('#status').textContent = "Impossible de joindre le service de conversion (backend).";
     return;
   }
